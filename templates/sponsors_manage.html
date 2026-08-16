@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}Sponsors · {{ event.title }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container-narrow">
+    <a href="{{ url_for('organizer_dashboard') if current_user.role=='organizer' else url_for('admin_events') }}" class="back-link">{{ icon('arrow-left', cls='icon icon-sm') }}Back</a>
+    <div class="page-header">
+      <h2>Sponsors — {{ event.title }}</h2>
+      <p>List sponsors by tier — they'll appear on the public event page.</p>
+    </div>
+
+    <div class="card card-3d"><div class="card-body">
+      <form method="post">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Sponsor name</label>
+            <input type="text" id="name" name="name" required placeholder="Company Inc.">
+          </div>
+          <div class="form-group">
+            <label for="tier">Tier</label>
+            <select id="tier" name="tier">
+              <option>Platinum</option>
+              <option>Gold</option>
+              <option>Silver</option>
+              <option>Community</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="website">Website (optional)</label>
+          <input type="url" id="website" name="website" placeholder="https://example.com">
+        </div>
+        <div class="form-group">
+          <label for="description">Short blurb (optional)</label>
+          <input type="text" id="description" name="description" placeholder="What they're contributing">
+        </div>
+        <button class="btn btn-primary" type="submit">{{ icon('plus', cls='icon icon-sm') }}Add sponsor</button>
+      </form>
+    </div></div>
+
+    <div class="stack" style="margin-top:24px;">
+      {% for s in sponsors %}
+        <div class="card"><div class="card-body" style="display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap;">
+          <div>
+            <b style="font-size:0.95rem;">{{ s.name }}</b> <span class="badge {{ 'badge-warning' if s.tier=='Platinum' else ('badge-accent' if s.tier=='Gold' else 'badge-neutral') }}">{{ s.tier }}</span>
+            {% if s.description %}<div class="text-meta" style="margin-top:4px;">{{ s.description }}</div>{% endif %}
+            {% if s.website %}<a href="{{ s.website }}" target="_blank" rel="noopener" class="text-xs" style="margin-top:4px; display:inline-block;">{{ s.website }} →</a>{% endif %}
+          </div>
+          <form method="post" action="{{ url_for('delete_sponsor', sponsor_id=s.id) }}" onsubmit="return confirm('Remove this sponsor?')">
+            <button class="btn btn-outline btn-sm">{{ icon('trash', cls='icon icon-sm') }}Remove</button>
+          </form>
+        </div></div>
+      {% else %}
+        <div class="empty-state" style="padding:var(--space-10) var(--space-5);">
+          <div class="empty-state-icon" style="width:56px; height:56px;">{{ icon('award', cls='icon icon-lg') }}</div>
+          <h3>No sponsors yet</h3>
+          <p>Add your first sponsor above.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

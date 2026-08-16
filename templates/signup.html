@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Sign up{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container-narrow">
+    <div class="card card-3d"><div class="card-body">
+      <div class="page-header" style="text-align:center; margin-bottom:var(--space-8);">
+        <div class="brand-mark" style="margin:0 auto var(--space-4); width:40px; height:40px;"></div>
+        <h2>Create your account</h2>
+        <p>Register events as a club organizer, or sign up as a student to grab tickets.</p>
+      </div>
+      <form method="post">
+        <div class="form-group">
+          <label for="name">Full name</label>
+          <input type="text" id="name" name="name" required autofocus placeholder="Your full name">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required placeholder="you@college.edu">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required minlength="4" placeholder="At least 4 characters">
+        </div>
+        <div class="form-group">
+          <label for="role">I am a…</label>
+          <select id="role" name="role">
+            <option value="student">Student (attend events)</option>
+            <option value="organizer">Club / organizer (host events)</option>
+          </select>
+          <p class="help-text">Admin accounts are seeded separately for platform oversight.</p>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Create account</button>
+      </form>
+      <p class="help-text" style="margin-top:18px; text-align:center;">Already have an account? <a href="{{ url_for('login') }}">Log in</a>.</p>
+    </div></div>
+  </div>
+</section>
+{% endblock %}

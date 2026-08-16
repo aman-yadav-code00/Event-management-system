@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}Attendees · {{ event.title }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <a href="{{ back_url }}" class="back-link">{{ icon('arrow-left', cls='icon icon-sm') }}Back</a>
+    <div class="page-header">
+      <h2>Attendees — {{ event.title }}</h2>
+      <p>{{ regs|length }} total registration(s).</p>
+    </div>
+
+    {% if regs %}
+    {% set status_badge = {'confirmed':'badge-success','pending':'badge-warning','rejected':'badge-danger','cancelled':'badge-neutral','attended':'badge-success'} %}
+    <div class="table-wrap"><table>
+      <thead><tr><th>Ticket</th><th>Student</th><th>Status</th><th>Registered</th></tr></thead>
+      <tbody>
+        {% for r in regs %}
+          <tr>
+            <td class="mono text-sm" style="font-weight:600; color:var(--accent-600);">{{ r.ticket_code }}</td>
+            <td>{{ r.student_name }}<div class="cell-sub">{{ r.student_email }}</div></td>
+            <td><span class="badge {{ status_badge[r.status] }}">{{ r.status|capitalize }}</span></td>
+            <td class="text-sm">{{ r.registered_at|fmt_dt }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table></div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">{{ icon('ticket', cls='icon icon-lg') }}</div>
+        <h3>No registrations yet</h3>
+        <p>Share the event page to start getting sign-ups.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

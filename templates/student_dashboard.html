@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}My Tickets{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>My tickets</h2>
+        <p>Every event you've registered for, in one place.</p>
+      </div>
+      <a href="{{ url_for('index') }}" class="btn btn-primary">{{ icon('search', cls='icon icon-sm') }}Browse events</a>
+    </div>
+
+    {% if regs %}
+      {% set status_badge = {'confirmed':'badge-success','pending':'badge-warning','rejected':'badge-danger','cancelled':'badge-neutral','attended':'badge-success'} %}
+      <div class="event-list">
+        {% for r in regs %}
+          <div class="event-card" style="cursor:default;">
+            <span class="event-card-accent" aria-hidden="true"></span>
+            <div class="event-card-body">
+              <div class="event-card-top">
+                <span class="badge {{ status_badge[r.status] }}">{{ r.status|capitalize }}</span>
+                {% if r.event_status == 'pending' %}<span class="badge badge-warning">Event pending review</span>{% endif %}
+              </div>
+              <h3 class="event-card-title">{{ r.title }}</h3>
+              <div class="meta-row">
+                <span class="meta-item">{{ icon('calendar', cls='icon icon-sm') }}{{ r.start_time|fmt_dt }}</span>
+                <span class="meta-item">{{ icon('map-pin', cls='icon icon-sm') }}{{ r.venue }}</span>
+                <span class="meta-item mono" style="font-weight:600; color:var(--accent-600);">{{ r.ticket_code }}</span>
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;">
+                {% if r.status == 'confirmed' or r.status == 'attended' %}
+                  <a href="{{ url_for('view_ticket', ticket_code=r.ticket_code) }}" class="btn btn-primary btn-sm">{{ icon('ticket', cls='icon icon-sm') }}View ticket</a>
+                {% endif %}
+                {% if r.status in ('confirmed','pending') %}
+                  <form method="post" action="{{ url_for('cancel_registration', event_id=r.event_id) }}" onsubmit="return confirm('Cancel your registration for this event?')">
+                    <button class="btn btn-outline btn-sm">{{ icon('x', cls='icon icon-sm') }}Cancel</button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          {{ icon('ticket', cls='icon icon-lg') }}
+        </div>
+        <h3>No tickets yet</h3>
+        <p>Once you register for an event it'll show up here with a ready-to-use ticket.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Browse events</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

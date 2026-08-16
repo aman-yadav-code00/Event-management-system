@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from '_icons.html' import icon %}
+{% block content %}
+<div class="admin-shell">
+  <aside class="admin-side">
+    <div class="side-label">Overview</div>
+    <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if request.endpoint=='admin_dashboard' }}">{{ icon('layout-dashboard', cls='icon icon-sm') }}Dashboard</a>
+    <div class="side-label">Approvals</div>
+    <a href="{{ url_for('admin_events') }}" class="{{ 'active' if request.endpoint=='admin_events' }}">{{ icon('calendar', cls='icon icon-sm') }}Events</a>
+    <a href="{{ url_for('admin_registrations') }}" class="{{ 'active' if request.endpoint=='admin_registrations' }}">{{ icon('ticket', cls='icon icon-sm') }}Registrations</a>
+    <div class="side-label">Shortcuts</div>
+    <a href="{{ url_for('index') }}">{{ icon('globe', cls='icon icon-sm') }}View public site</a>
+  </aside>
+  <main class="admin-main">
+    {% block admin_content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}

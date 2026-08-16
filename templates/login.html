@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Log in{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container-narrow">
+    <div class="card card-3d"><div class="card-body">
+      <div class="page-header" style="text-align:center; margin-bottom:var(--space-8);">
+        <div class="brand-mark" style="margin:0 auto var(--space-4); width:40px; height:40px;"></div>
+        <h2>Welcome back</h2>
+        <p>Log in to register for events or manage the platform.</p>
+      </div>
+      <form method="post">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required autofocus placeholder="you@college.edu">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" required placeholder="••••••••">
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Log in</button>
+      </form>
+      <p class="help-text" style="margin-top:18px; text-align:center;">No account? <a href="{{ url_for('signup') }}">Sign up here</a>.</p>
+    </div></div>
+
+    <div class="card" style="margin-top:18px;"><div class="card-body">
+      <span class="text-sm" style="font-weight:700; color:var(--text-secondary); display:block; margin-bottom:12px;">Demo accounts (seeded automatically)</span>
+      <div class="stack" style="gap:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--brand-50); border-radius:var(--radius-md);">
+          <span class="text-sm font-medium">Admin</span>
+          <span class="mono text-sm">admin@college.edu</span>
+          <span class="mono text-sm text-tertiary">admin123</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--brand-50); border-radius:var(--radius-md);">
+          <span class="text-sm font-medium">Organizer</span>
+          <span class="mono text-sm">organizer@college.edu</span>
+          <span class="mono text-sm text-tertiary">organizer123</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:var(--brand-50); border-radius:var(--radius-md);">
+          <span class="text-sm font-medium">Student</span>
+          <span class="mono text-sm">student@college.edu</span>
+          <span class="mono text-sm text-tertiary">student123</span>
+        </div>
+      </div>
+    </div></div>
+  </div>
+</section>
+{% endblock %}

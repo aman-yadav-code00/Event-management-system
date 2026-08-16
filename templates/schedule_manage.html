@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}Schedule · {{ event.title }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container-narrow">
+    <a href="{{ url_for('organizer_dashboard') if current_user.role=='organizer' else url_for('admin_events') }}" class="back-link">{{ icon('arrow-left', cls='icon icon-sm') }}Back</a>
+    <div class="page-header">
+      <h2>Schedule — {{ event.title }}</h2>
+      <p>Add session-by-session timing so attendees know exactly when to show up.</p>
+    </div>
+
+    <div class="card card-3d"><div class="card-body">
+      <form method="post">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="title">Session title</label>
+            <input type="text" id="title" name="title" required placeholder="Opening keynote">
+          </div>
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" placeholder="Main hall">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="start_time">Starts</label>
+            <input type="datetime-local" id="start_time" name="start_time" required>
+          </div>
+          <div class="form-group">
+            <label for="end_time">Ends</label>
+            <input type="datetime-local" id="end_time" name="end_time" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="speaker">Speaker / host (optional)</label>
+          <input type="text" id="speaker" name="speaker" placeholder="Dr. Name">
+        </div>
+        <button class="btn btn-primary" type="submit">{{ icon('plus', cls='icon icon-sm') }}Add to schedule</button>
+      </form>
+    </div></div>
+
+    <div class="stack" style="margin-top:24px;">
+      {% for item in items %}
+        <div class="card"><div class="card-body" style="display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap;">
+          <div>
+            <b style="font-size:0.95rem;">{{ item.title }}</b>
+            <div class="text-meta" style="margin-top:4px;">
+              {{ item.start_time|fmt_dt }} – {{ item.end_time|fmt_dt }}
+              {% if item.speaker %} · {{ icon('user', cls='icon icon-sm') }} {{ item.speaker }}{% endif %}
+              {% if item.location %} · {{ icon('map-pin', cls='icon icon-sm') }} {{ item.location }}{% endif %}
+            </div>
+          </div>
+          <form method="post" action="{{ url_for('delete_schedule_item', item_id=item.id) }}" onsubmit="return confirm('Remove this session?')">
+            <button class="btn btn-outline btn-sm">{{ icon('trash', cls='icon icon-sm') }}Remove</button>
+          </form>
+        </div></div>
+      {% else %}
+        <div class="empty-state" style="padding:var(--space-10) var(--space-5);">
+          <div class="empty-state-icon" style="width:56px; height:56px;">{{ icon('list', cls='icon icon-lg') }}</div>
+          <h3>No schedule yet</h3>
+          <p>Add your first session above.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

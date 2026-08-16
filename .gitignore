@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Project database (local demo data — don't commit it)
+college_events.db
+
+# macOS system files
+.DS_Store
+
+# VS Code settings (optional — skip this if you want to share editor config)
+.vscode/

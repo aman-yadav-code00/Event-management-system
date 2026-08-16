@@ -1,0 +1,71 @@
+{% extends "admin/_shell.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}Manage Events{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+  <h2>Events</h2>
+  <p>Approve new submissions, or manage schedules and sponsors for any event.</p>
+</div>
+
+<div class="tag-row">
+  <a href="{{ url_for('admin_events', status='pending') }}" class="tag {{ 'active' if active_status=='pending' }}">Pending</a>
+  <a href="{{ url_for('admin_events', status='approved') }}" class="tag {{ 'active' if active_status=='approved' }}">Approved</a>
+  <a href="{{ url_for('admin_events', status='rejected') }}" class="tag {{ 'active' if active_status=='rejected' }}">Rejected</a>
+  <a href="{{ url_for('admin_events', status='all') }}" class="tag {{ 'active' if active_status=='all' }}">All</a>
+</div>
+
+{% if events %}
+<div class="stack">
+  {% for e in events %}
+    <div class="card card-3d"><div class="card-body">
+      <div style="display:flex; justify-content:space-between; gap:18px; flex-wrap:wrap;">
+        <div style="min-width:0; flex:1;">
+          <div class="event-card-top" style="margin-bottom:8px;">
+            <span class="badge badge-accent">{{ e.category }}</span>
+            <span class="badge {{ 'badge-success' if e.status=='approved' else ('badge-warning' if e.status=='pending' else 'badge-danger') }}">{{ e.status|capitalize }}</span>
+          </div>
+          <h3 style="margin-bottom:8px; font-size:1.1rem;">{{ e.title }}</h3>
+          <p class="text-secondary text-sm" style="margin-bottom:12px; line-height:1.6;">{{ e.description[:160] }}{% if e.description|length > 160 %}…{% endif %}</p>
+          <div class="meta-row">
+            <span class="meta-item">{{ icon('user', cls='icon icon-sm') }}{{ e.organizer_name }}</span>
+            <span class="meta-item">{{ icon('calendar', cls='icon icon-sm') }}{{ e.start_time|fmt_dt }}</span>
+            <span class="meta-item">{{ icon('map-pin', cls='icon icon-sm') }}{{ e.venue }}</span>
+            <span class="meta-item">{{ icon('users', cls='icon icon-sm') }}Capacity {{ e.capacity }}</span>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px; min-width:180px;">
+          <a href="{{ url_for('admin_manage_schedule', event_id=e.id) }}" class="btn btn-outline btn-sm">{{ icon('list', cls='icon icon-sm') }}Manage schedule</a>
+          <a href="{{ url_for('admin_manage_sponsors', event_id=e.id) }}" class="btn btn-outline btn-sm">{{ icon('award', cls='icon icon-sm') }}Manage sponsors</a>
+          <a href="{{ url_for('event_detail', event_id=e.id) }}" class="btn btn-outline btn-sm">{{ icon('globe', cls='icon icon-sm') }}Preview page</a>
+        </div>
+      </div>
+
+      {% if e.status == 'pending' %}
+        <form method="post" action="{{ url_for('admin_decide_event', event_id=e.id) }}" style="margin-top:20px; border-top:1px solid var(--border-light); padding-top:16px;">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="note{{ e.id }}" style="font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-tertiary);">Note to organizer (optional, shown if rejected)</label>
+            <input type="text" id="note{{ e.id }}" name="admin_note" placeholder="e.g. Please add a specific venue room number" style="margin-top:4px;">
+          </div>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn btn-success" type="submit" name="decision" value="approve">{{ icon('check', cls='icon icon-sm') }}Approve</button>
+            <button class="btn btn-danger" type="submit" name="decision" value="reject">{{ icon('x', cls='icon icon-sm') }}Reject</button>
+          </div>
+        </form>
+      {% elif e.admin_note %}
+        <p class="text-sm" style="margin-top:14px; padding:10px 14px; background:var(--danger-light); color:var(--danger-dark); border-radius:var(--radius-md); border:1px solid #FECACA;">
+          <b>Admin note:</b> {{ e.admin_note }}
+        </p>
+      {% endif %}
+    </div></div>
+  {% endfor %}
+</div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      {{ icon('check-circle', cls='icon icon-lg') }}
+    </div>
+    <h3>Nothing here</h3>
+    <p>No events with this status right now.</p>
+  </div>
+{% endif %}
+{% endblock %}

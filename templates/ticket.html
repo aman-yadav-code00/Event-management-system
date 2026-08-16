@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}Ticket · {{ reg.title }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="ticket-page">
+
+    <div class="ticket-pass">
+      <div class="ticket-pass-top">
+        {% set status_colors = {'confirmed':'badge-success','pending':'badge-warning','rejected':'badge-danger','cancelled':'badge-neutral','attended':'badge-success'} %}
+        <span class="badge {{ status_colors.get(reg.status, 'badge-neutral') }}" style="text-transform:uppercase; letter-spacing:0.05em;">{{ reg.status|capitalize }}</span>
+        <h1>{{ reg.title }}</h1>
+        <p class="venue">{{ icon('map-pin', cls='icon icon-sm') }}{{ reg.venue }}</p>
+      </div>
+
+      <div class="ticket-pass-mid">
+        <div class="ticket-pass-row"><span>Starts</span><b>{{ reg.start_time|fmt_dt }}</b></div>
+        <div class="ticket-pass-row"><span>Ends</span><b>{{ reg.end_time|fmt_dt }}</b></div>
+        <div class="ticket-pass-row"><span>Ticket holder</span><b>{{ current_user.name }}</b></div>
+        <div class="ticket-pass-row"><span>Issued</span><b>{{ reg.registered_at|fmt_dt }}</b></div>
+      </div>
+
+      <div class="ticket-code-block">
+        <div class="ticket-code">{{ reg.ticket_code }}</div>
+        <div class="ticket-barcode" data-barcode="{{ reg.ticket_code }}"></div>
+        <p class="ticket-print-note">Show this code at check-in · unique per registration</p>
+      </div>
+      <div class="ticket-perf-right"></div>
+    </div>
+
+    <div class="no-print" style="text-align:center; margin-top:24px; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="window.print()">{{ icon('printer', cls='icon icon-sm') }}Print ticket</button>
+      <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary">Back to my tickets</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

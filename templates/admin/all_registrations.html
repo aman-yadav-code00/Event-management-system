@@ -1,0 +1,48 @@
+{% extends "admin/_shell.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}Manage Registrations{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+  <h2>Registrations</h2>
+  <p>Approve seat requests for events that require individual sign-off.</p>
+</div>
+
+<div class="tag-row">
+  <a href="{{ url_for('admin_registrations', status='pending') }}" class="tag {{ 'active' if active_status=='pending' }}">Pending</a>
+  <a href="{{ url_for('admin_registrations', status='confirmed') }}" class="tag {{ 'active' if active_status=='confirmed' }}">Confirmed</a>
+  <a href="{{ url_for('admin_registrations', status='rejected') }}" class="tag {{ 'active' if active_status=='rejected' }}">Rejected</a>
+  <a href="{{ url_for('admin_registrations', status='all') }}" class="tag {{ 'active' if active_status=='all' }}">All</a>
+</div>
+
+{% if regs %}
+{% set status_badge = {'confirmed':'badge-success','pending':'badge-warning','rejected':'badge-danger','cancelled':'badge-neutral','attended':'badge-success'} %}
+<div class="table-wrap"><table>
+  <thead><tr><th>Ticket</th><th>Event</th><th>Student</th><th>Status</th><th>Registered</th><th style="text-align:right;">Actions</th></tr></thead>
+  <tbody>
+    {% for r in regs %}
+      <tr>
+        <td class="mono text-sm" style="font-weight:600; color:var(--accent-600);">{{ r.ticket_code }}</td>
+        <td><div class="cell-title">{{ r.title }}</div></td>
+        <td>{{ r.student_name }}<div class="cell-sub">{{ r.student_email }}</div></td>
+        <td><span class="badge {{ status_badge[r.status] }}">{{ r.status|capitalize }}</span></td>
+        <td class="text-sm">{{ r.registered_at|fmt_dt }}</td>
+        <td>
+          {% if r.status == 'pending' %}
+          <form method="post" action="{{ url_for('admin_decide_registration', reg_id=r.id) }}" class="table-actions">
+            <button class="btn btn-success btn-sm" name="decision" value="approve">{{ icon('check', cls='icon icon-sm') }}Approve</button>
+            <button class="btn btn-danger btn-sm" name="decision" value="reject">{{ icon('x', cls='icon icon-sm') }}Reject</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table></div>
+{% else %}
+  <div class="empty-state">
+    <div class="empty-state-icon">{{ icon('ticket', cls='icon icon-lg') }}</div>
+    <h3>Nothing here</h3>
+    <p>No registrations with this status right now.</p>
+  </div>
+{% endif %}
+{% endblock %}

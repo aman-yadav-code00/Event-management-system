@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit event' if event else 'New event' }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container-narrow">
+    <div class="page-header">
+      <h2>{{ 'Edit event' if event else 'Submit a new event' }}</h2>
+      <p>{{ 'Changes are re-submitted for admin approval.' if event else 'New events are reviewed by an admin before appearing publicly.' }}</p>
+    </div>
+
+    <div class="card card-3d"><div class="card-body">
+      <form method="post">
+        <div class="form-group">
+          <label for="title">Event title</label>
+          <input type="text" id="title" name="title" required value="{{ event.title if event else '' }}" placeholder="e.g. TechFest 2026">
+        </div>
+
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea id="description" name="description" required placeholder="Describe the event, what attendees can expect...">{{ event.description if event else '' }}</textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="category">Category</label>
+            <input type="text" id="category" name="category" required placeholder="Technical, Cultural, Sports…" value="{{ event.category if event else '' }}">
+          </div>
+          <div class="form-group">
+            <label for="venue">Venue</label>
+            <input type="text" id="venue" name="venue" required placeholder="Main Auditorium" value="{{ event.venue if event else '' }}">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="start_time">Starts</label>
+            <input type="datetime-local" id="start_time" name="start_time" required value="{{ event.start_time if event else '' }}">
+          </div>
+          <div class="form-group">
+            <label for="end_time">Ends</label>
+            <input type="datetime-local" id="end_time" name="end_time" required value="{{ event.end_time if event else '' }}">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="capacity">Seat capacity</label>
+          <input type="number" id="capacity" name="capacity" min="1" required value="{{ event.capacity if event else 100 }}">
+        </div>
+
+        <div class="form-group check-row">
+          <input type="checkbox" id="requires_approval" name="requires_approval" {{ 'checked' if event and event.requires_approval }}>
+          <label for="requires_approval">Each registration needs individual admin approval (for limited/VIP seats)</label>
+        </div>
+
+        <input type="hidden" name="banner_emoji" value="{{ event.banner_emoji if event else '🎉' }}">
+
+        <button class="btn btn-primary btn-block" type="submit">{{ 'Save & re-submit' if event else 'Submit for approval' }}</button>
+      </form>
+    </div></div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}{{ event.title }}{% endblock %}
+{% block content %}
+<section class="section" style="padding-top:28px;">
+  <div class="container">
+
+    <a href="{{ url_for('index') }}" class="back-link">{{ icon('arrow-left', cls='icon icon-sm') }}Back to all events</a>
+
+    <div class="event-card-top" style="margin-bottom:12px;">
+      <span class="badge badge-accent">{{ event.category }}</span>
+      {% if event.status != 'approved' %}
+        <span class="badge {{ 'badge-warning' if event.status=='pending' else 'badge-danger' }}">{{ event.status|capitalize }}</span>
+      {% endif %}
+      {% if event_past %}<span class="badge badge-neutral">Event ended</span>{% endif %}
+    </div>
+    <h1 style="margin-bottom:10px; font-size: clamp(1.5rem, 4vw, 2.25rem);">{{ event.title }}</h1>
+    <p class="text-secondary" style="margin:0; font-size:0.95rem;">Organized by <b style="color:var(--text-primary);">{{ event.organizer_name }}</b></p>
+
+    <div class="grid-2" style="margin-top:32px; align-items:start;">
+      <div class="stack">
+
+        <div class="card card-3d"><div class="card-body">
+          <h3 style="margin-bottom:14px; display:flex; align-items:center; gap:8px;">
+            {{ icon('info', cls='icon icon-sm') }} About this event
+          </h3>
+          <p class="text-secondary" style="line-height:1.75; font-size:0.95rem;">{{ event.description }}</p>
+          <div class="meta-row" style="margin-top:18px; padding-top:16px; border-top:1px solid var(--border-light);">
+            <span class="meta-item">{{ icon('calendar', cls='icon icon-sm') }}{{ event.start_time|fmt_dt }}</span>
+          </div>
+          <div class="meta-row" style="margin-top:10px;">
+            <span class="meta-item">{{ icon('clock', cls='icon icon-sm') }}Ends {{ event.end_time|fmt_dt }}</span>
+          </div>
+          <div class="meta-row" style="margin-top:10px;">
+            <span class="meta-item">{{ icon('map-pin', cls='icon icon-sm') }}{{ event.venue }}</span>
+          </div>
+        </div></div>
+
+        {% if schedule %}
+        <div class="card card-3d"><div class="card-body">
+          <h3 style="margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+            {{ icon('list', cls='icon icon-sm') }} Schedule
+          </h3>
+          <div class="stack" style="gap:16px;">
+            {% for s in schedule %}
+              <div style="display:flex; gap:16px; padding-bottom:14px; border-bottom:1px solid var(--border-light); {% if loop.last %}border-bottom:none; padding-bottom:0;{% endif %}">
+                <div class="mono text-sm" style="min-width:150px; color:var(--accent-600); font-weight:700; font-size:0.8rem;">
+                  {{ s.start_time|fmt_dt }}
+                </div>
+                <div style="flex:1;">
+                  <b style="font-size:0.95rem;">{{ s.title }}</b>
+                  <div class="text-meta" style="margin-top:4px;">
+                    {% if s.speaker %}{{ icon('user', cls='icon icon-sm') }} {{ s.speaker }} · {% endif %}
+                    {% if s.location %}{{ icon('map-pin', cls='icon icon-sm') }} {{ s.location }}{% endif %}
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </div></div>
+        {% endif %}
+
+        {% if sponsors %}
+        <div class="card card-3d"><div class="card-body">
+          <h3 style="margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+            {{ icon('award', cls='icon icon-sm') }} Sponsors
+          </h3>
+          <div class="stack" style="gap:14px;">
+            {% for s in sponsors %}
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; padding:12px 14px; background:var(--brand-50); border-radius:var(--radius-md);">
+                <div>
+                  <b style="font-size:0.95rem;">{{ s.name }}</b>
+                  {% if s.description %}<div class="text-meta" style="margin-top:4px;">{{ s.description }}</div>{% endif %}
+                  {% if s.website %}<a href="{{ s.website }}" target="_blank" rel="noopener" class="text-xs" style="margin-top:4px; display:inline-block;">Visit website →</a>{% endif %}
+                </div>
+                <span class="badge {{ 'badge-warning' if s.tier=='Platinum' else ('badge-accent' if s.tier=='Gold' else 'badge-neutral') }}">{{ s.tier }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </div></div>
+        {% endif %}
+
+      </div>
+
+      <div class="card reg-panel card-3d"><div class="card-body">
+        <h3 style="display:flex; align-items:center; gap:8px;">
+          {{ icon('ticket', cls='icon icon-sm') }} Registration
+        </h3>
+        {% set pct = (seats_taken / event.capacity * 100) if event.capacity else 0 %}
+        <div class="seat-bar {{ 'hot' if pct >= 80 }}" style="width:100%; margin-bottom:10px; margin-left:0;"><i style="width:{{ pct }}%"></i></div>
+        <p class="text-meta" style="margin-top:0; margin-bottom:20px; font-weight:500;">{{ seats_taken }} / {{ event.capacity }} seats claimed · {{ event.capacity - seats_taken }} remaining</p>
+
+        {% if event_past %}
+          <div class="inline-alert" style="margin-bottom:0;">
+            {{ icon('info', cls='icon icon-sm') }}
+            <div>This event has already ended. Registration is closed.</div>
+          </div>
+        {% elif not current_user %}
+          <a href="{{ url_for('login', next=request.path) }}" class="btn btn-primary btn-block">Log in to register</a>
+          <p class="help-text" style="margin-top:12px;">New here? <a href="{{ url_for('signup') }}">Create a student account</a>.</p>
+        {% elif current_user.role != 'student' %}
+          <div class="inline-alert" style="margin-bottom:0;">
+            {{ icon('info', cls='icon icon-sm') }}
+            <div>Only student accounts can register for events.</div>
+          </div>
+        {% elif my_reg %}
+          {% if my_reg.status == 'confirmed' %}
+            <div style="text-align:center; padding:var(--space-4) 0;">
+              <div class="badge badge-success" style="margin-bottom:12px; font-size:0.75rem;">{{ icon('check', cls='icon icon-sm') }} Confirmed</div>
+              <a href="{{ url_for('view_ticket', ticket_code=my_reg.ticket_code) }}" class="btn btn-primary btn-block">View your ticket</a>
+            </div>
+          {% elif my_reg.status == 'pending' %}
+            <div style="text-align:center; padding:var(--space-4) 0;">
+              <div class="badge badge-warning" style="margin-bottom:12px; font-size:0.75rem;">{{ icon('clock', cls='icon icon-sm') }} Awaiting approval</div>
+              <p class="help-text" style="margin-bottom:12px;">You're on the list — this event needs admin confirmation before your ticket activates.</p>
+            </div>
+          {% elif my_reg.status == 'rejected' %}
+            <div style="text-align:center; padding:var(--space-4) 0;">
+              <div class="badge badge-danger" style="margin-bottom:12px;">Registration not approved</div>
+            </div>
+          {% elif my_reg.status == 'cancelled' %}
+            <form method="post" action="{{ url_for('register_for_event', event_id=event.id) }}">
+              <button class="btn btn-primary btn-block">Register again</button>
+            </form>
+          {% elif my_reg.status == 'attended' %}
+            <div style="text-align:center; padding:var(--space-4) 0;">
+              <div class="badge badge-success" style="margin-bottom:12px;">{{ icon('check', cls='icon icon-sm') }} Attended</div>
+              <a href="{{ url_for('view_ticket', ticket_code=my_reg.ticket_code) }}" class="btn btn-primary btn-block">View ticket</a>
+            </div>
+          {% endif %}
+          {% if my_reg.status in ('confirmed','pending') %}
+            <form method="post" action="{{ url_for('cancel_registration', event_id=event.id) }}" style="margin-top:12px;">
+              <button class="btn btn-outline btn-block btn-sm" onclick="return confirm('Cancel your registration?')">Cancel registration</button>
+            </form>
+          {% endif %}
+        {% elif seats_taken >= event.capacity %}
+          <button class="btn btn-block" disabled style="background:var(--brand-100); color:var(--text-tertiary); border-color:var(--border-light);">
+            {{ icon('x', cls='icon icon-sm') }} Fully booked
+          </button>
+          <p class="help-text" style="margin-top:10px; text-align:center;">All seats have been claimed. Check back later in case of cancellations.</p>
+        {% elif event.status != 'approved' %}
+          <button class="btn btn-block" disabled style="background:var(--brand-100); color:var(--text-tertiary); border-color:var(--border-light);">Not yet open</button>
+        {% else %}
+          <form method="post" action="{{ url_for('register_for_event', event_id=event.id) }}">
+            <button class="btn btn-primary btn-block">
+              {{ icon('ticket', cls='icon icon-sm') }} {{ 'Request a seat' if event.requires_approval else 'Register — get ticket' }}
+            </button>
+          </form>
+          {% if event.requires_approval %}
+            <p class="help-text" style="margin-top:12px;">This event needs admin approval after you register. You'll be notified once confirmed.</p>
+          {% else %}
+            <p class="help-text" style="margin-top:12px;">Instant confirmation. Your ticket will appear in your dashboard immediately.</p>
+          {% endif %}
+        {% endif %}
+      </div></div>
+    </div>
+  </div>
+</section>
+{% endblock %}

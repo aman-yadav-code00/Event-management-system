@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}Organizer Panel{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <h2>Your events</h2>
+        <p>Submit new events, manage schedules and sponsors, and track approval status.</p>
+      </div>
+      <a href="{{ url_for('event_new') }}" class="btn btn-primary">{{ icon('plus', cls='icon icon-sm') }}New event</a>
+    </div>
+
+    {% if events %}
+      <div class="table-wrap"><table>
+        <thead><tr><th>Event</th><th>Status</th><th>When</th><th>Registrations</th><th style="text-align:right;">Manage</th></tr></thead>
+        <tbody>
+        {% for e in events %}
+          <tr>
+            <td>
+              <div class="cell-title">{{ e.title }}</div>
+              <div class="cell-sub">{{ e.category }}</div>
+            </td>
+            <td>
+              <span class="badge {{ 'badge-success' if e.status=='approved' else ('badge-warning' if e.status=='pending' else 'badge-danger') }}">{{ e.status|capitalize }}</span>
+              {% if e.status=='rejected' and e.admin_note %}<div class="text-meta" style="margin-top:6px; color:var(--danger); max-width:240px;">{{ e.admin_note }}</div>{% endif %}
+            </td>
+            <td class="text-sm">{{ e.start_time|fmt_dt }}</td>
+            <td>
+              <span class="font-semibold">{{ e.regs }}</span><span class="text-meta"> / {{ e.capacity }}</span>
+              <div class="seat-bar" style="width:80px; margin-top:4px; margin-left:0;">
+                <i style="width:{{ (e.regs / e.capacity * 100) if e.capacity else 0 }}%"></i>
+              </div>
+            </td>
+            <td>
+              <div class="table-actions">
+                <a href="{{ url_for('event_edit', event_id=e.id) }}" class="btn btn-outline btn-sm">Edit</a>
+                <a href="{{ url_for('manage_schedule', event_id=e.id) }}" class="btn btn-outline btn-sm">Schedule</a>
+                <a href="{{ url_for('manage_sponsors', event_id=e.id) }}" class="btn btn-outline btn-sm">Sponsors</a>
+                <a href="{{ url_for('organizer_view_registrations', event_id=e.id) }}" class="btn btn-outline btn-sm">Attendees</a>
+              </div>
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table></div>
+    {% else %}
+      <div class="empty-state">
+        <div class="empty-state-icon">
+          {{ icon('list', cls='icon icon-lg') }}
+        </div>
+        <h3>No events submitted yet</h3>
+        <p>Create your first event — it'll go live once an admin approves it.</p>
+        <a href="{{ url_for('event_new') }}" class="btn btn-primary">{{ icon('plus', cls='icon icon-sm') }}New event</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

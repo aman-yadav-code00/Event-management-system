@@ -1,0 +1,68 @@
+{% extends "admin/_shell.html" %}
+{% from '_icons.html' import icon %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block admin_content %}
+<div class="page-header">
+  <h2>Admin overview</h2>
+  <p>Platform-wide status at a glance. Manage approvals, monitor activity, and keep everything running smoothly.</p>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi">
+    <b>{{ stats.pending_events }}</b>
+    <span>Events awaiting review</span>
+  </div>
+  <div class="kpi">
+    <b>{{ stats.approved_events }}</b>
+    <span>Live events</span>
+  </div>
+  <div class="kpi">
+    <b>{{ stats.pending_regs }}</b>
+    <span>Registrations pending</span>
+  </div>
+  <div class="kpi">
+    <b>{{ stats.total_tickets }}</b>
+    <span>Tickets issued</span>
+  </div>
+  <div class="kpi">
+    <b>{{ stats.total_students }}</b>
+    <span>Students registered</span>
+  </div>
+  <div class="kpi">
+    <b>{{ stats.total_organizers }}</b>
+    <span>Active organizers</span>
+  </div>
+</div>
+
+{% if stats.pending_events > 0 or stats.pending_regs > 0 %}
+<div class="inline-alert warning">
+  {{ icon('alert-triangle', cls='icon icon-sm') }}
+  <div class="inline-alert-body">
+    <b>Action needed:</b>
+    {% if stats.pending_events > 0 %}<a href="{{ url_for('admin_events', status='pending') }}">{{ stats.pending_events }} event(s) waiting for approval</a>{% endif %}
+    {% if stats.pending_events > 0 and stats.pending_regs > 0 %} &nbsp;·&nbsp; {% endif %}
+    {% if stats.pending_regs > 0 %}<a href="{{ url_for('admin_registrations', status='pending') }}">{{ stats.pending_regs }} registration(s) waiting for approval</a>{% endif %}
+  </div>
+</div>
+{% endif %}
+
+<h3 style="margin-bottom:18px; font-size:1.125rem;">Recently submitted events</h3>
+<div class="table-wrap"><table>
+  <thead><tr><th>Event</th><th>Organizer</th><th>Status</th><th>Submitted</th><th></th></tr></thead>
+  <tbody>
+    {% for e in recent_events %}
+      <tr>
+        <td><a href="{{ url_for('event_detail', event_id=e.id) }}" class="cell-title">{{ e.title }}</a></td>
+        <td>{{ e.organizer_name }}</td>
+        <td><span class="badge {{ 'badge-success' if e.status=='approved' else ('badge-warning' if e.status=='pending' else 'badge-danger') }}">{{ e.status|capitalize }}</span></td>
+        <td class="text-sm">{{ e.created_at|fmt_dt }}</td>
+        <td>
+          {% if e.status == 'pending' %}
+            <a href="{{ url_for('admin_events', status='pending') }}" class="btn btn-sm btn-success">Review</a>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table></div>
+{% endblock %}

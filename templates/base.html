@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CampusEvents — The official campus event registration and ticketing platform. Browse, register, and manage college events in one place.">
+<meta name="theme-color" content="#4F46E5">
+<title>{% block title %}CampusEvents{% endblock %} · CampusEvents</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234F46E5%22/><rect x=%2225%22 y=%2225%22 width=%2250%22 height=%2250%22 rx=%2210%22 fill=%22white%22/></svg>">
+</head>
+<body>
+{% from '_icons.html' import icon %}
+
+<nav class="navbar">
+  <div class="container">
+    <a href="{{ url_for('index') }}" class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Campus<span class="brand-sub">Events</span></span>
+    </a>
+    <button class="nav-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="nav-links">
+      {{ icon('menu') }}
+    </button>
+    <div class="nav-links" id="nav-links">
+      <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint=='index' }}">Events</a>
+      {% if current_user %}
+        {% if current_user.role == 'student' %}
+          <a href="{{ url_for('student_dashboard') }}" class="{{ 'active' if request.endpoint=='student_dashboard' }}">My tickets</a>
+        {% elif current_user.role == 'organizer' %}
+          <a href="{{ url_for('organizer_dashboard') }}" class="{{ 'active' if 'organizer' in request.endpoint }}">Organizer panel</a>
+        {% elif current_user.role == 'admin' %}
+          <a href="{{ url_for('admin_dashboard') }}" class="{{ 'active' if 'admin' in request.endpoint }}">Admin panel</a>
+        {% endif %}
+        <span class="navlbl">{{ current_user.name.split(' ')[0] }}</span>
+        <a href="{{ url_for('logout') }}">Log out</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Log in</a>
+        <a href="{{ url_for('signup') }}" class="nav-cta">Sign up</a>
+      {% endif %}
+    </div>
+  </div>
+</nav>
+
+<div class="flash-wrap" role="status" aria-live="polite">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      {% set flash_icon = {'success':'check-circle','danger':'x-circle','warning':'alert-triangle','info':'info'}.get(category, 'info') %}
+      <div class="flash flash-{{ category }}">{{ icon(flash_icon, cls='icon icon-sm') }}<span>{{ message }}</span></div>
+    {% endfor %}
+  {% endwith %}
+</div>
+
+{% block content %}{% endblock %}
+
+<footer class="footer">
+  <div class="container">
+    <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:8px;">
+      <span class="brand-mark" style="width:16px;height:16px;box-shadow:none;"></span>
+      <span style="font-weight:700; color:var(--text-secondary);">CampusEvents</span>
+    </div>
+    <p style="margin:0;">Campus event registration &amp; ticketing — built for students, by students.</p>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
